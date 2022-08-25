@@ -5,6 +5,11 @@ import { Fragment } from "react"
 function ProductDetailPage(props) {
   const { loadedProduct } = props;
 
+  // Fallback checking only needed if fallback true
+  // if (!loadedProduct) {
+  //   return <p>Loading...</p>
+  // }
+
   return (
     <Fragment>
       <h1>{loadedProduct.title}</h1>
@@ -41,9 +46,12 @@ export async function getStaticPaths() {
       { params: { pid: 'p2' } },
       { params: { pid: 'p3' } },
     ],
-    fallback: false
+    fallback: "blocking"
   }
-  
+  // if we have millions of pages, with some getting used more than others, pre-generating all of them are not very efficient.
+  // that is where fallback true comes in to pre-generate highly visited pages only, while the rest are generated as it is used.
+  // gotcha here is that we need fallback check with if else to handle non pre-generated pages for null props with Loading...
+  // however if fallback is blocking, then fallback check if else is not needed.
 }
 
 export default ProductDetailPage
