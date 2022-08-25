@@ -6,9 +6,9 @@ function ProductDetailPage(props) {
   const { loadedProduct } = props;
 
   // Fallback checking only needed if fallback true
-  // if (!loadedProduct) {
-  //   return <p>Loading...</p>
-  // }
+  if (!loadedProduct) {
+    return <p>Loading...</p>
+  }
 
   return (
     <Fragment>
@@ -39,6 +39,10 @@ export async function getStaticProps(context) {
 
   const product = data.products.find( product => product.id === productId);
 
+  if (!product) {
+    return { notFound: true}
+  }
+
   return {
     props: {
       loadedProduct: product
@@ -57,7 +61,7 @@ export async function getStaticPaths() {
   
   return {
     paths: pathsWithParams,
-    fallback: false
+    fallback: true
   }
   // if we have millions of pages, with some getting used more than others, pre-generating all of them are not very efficient.
   // that is where fallback true comes in to pre-generate highly visited pages only, while the rest are generated as it is used.
