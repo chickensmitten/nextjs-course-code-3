@@ -16,7 +16,17 @@ function ProductDetailPage(props) {
       <p>{loadedProduct.description}</p>
     </Fragment>
   )
+
 }
+
+async function getData() {
+  const filePath = path.join(process.cwd(), "data", "dummy-backend.json")
+  const jsonData = await fs.readFile(filePath);
+  const data = JSON.parse(jsonData);  
+
+  return data
+}
+
 
 export async function getStaticProps(context) {
   const { params } = context;
@@ -25,9 +35,7 @@ export async function getStaticProps(context) {
   // this is different from useRouter hooks because, useRouter executes in browser client. 
   // params.pid executes in server
 
-  const filePath = path.join(process.cwd(), "data", "dummy-backend.json")
-  const jsonData = await fs.readFile(filePath);
-  const data = JSON.parse(jsonData);  
+  const data = await getData();
 
   const product = data.products.find( product => product.id === productId);
 
@@ -40,13 +48,16 @@ export async function getStaticProps(context) {
 
 export async function getStaticPaths() {
   // to be used in dynamic pages or dynamic folders
+  const data = await getData()
+
+  const ids = data.products.map(product => product.id)
+
+  const pathsWithParams = ids.map((id) => ({ params: { pid: id}}));
+  // [ { params: { pid: 'p1' } }, { params: { pid: 'p2' } }, { params: { pid: 'p3' } } ]
+  
   return {
-    paths: [
-      { params: { pid: 'p1' } },
-      { params: { pid: 'p2' } },
-      { params: { pid: 'p3' } },
-    ],
-    fallback: "blocking"
+    paths: pathsWithParams,
+    fallback: false
   }
   // if we have millions of pages, with some getting used more than others, pre-generating all of them are not very efficient.
   // that is where fallback true comes in to pre-generate highly visited pages only, while the rest are generated as it is used.
